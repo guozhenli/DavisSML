@@ -1,0 +1,74 @@
+% --------------------------------------------------------------
+% This is all preamble stuff that you don't have to worry about.
+% Head down to where it says "Start here"
+% --------------------------------------------------------------
+ 
+\documentclass[12pt]{article}
+ 
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{theorem}[2][Theorem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{lemma}[2][Lemma]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{exercise}[2][Exercise]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{reflection}[2][Reflection]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{proposition}[2][Proposition]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{corollary}[2][Corollary]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+ 
+\begin{document}
+ 
+% --------------------------------------------------------------
+%                         Start here
+% --------------------------------------------------------------
+ 
+%\renewcommand{\qedsymbol}{\filledbox}
+ 
+\title{Homework 1}%replace X with the appropriate number
+\author{Guozhen Li\\ %replace with your name
+STA 208 - Statistical Machine Learning} %if necessary, replace with your course title
+ 
+\maketitle
+
+
+\section{Exercise 1}
+\subsection{Predictor minimizing true risk}
+The true risk is
+\begin{align*}
+	R(g) & = \mathbb{E}[\ell(Y,g(X))]
+\end{align*}
+By conditioning on $X$, we can write $R(g)$ as
+\begin{align*}
+	R(g) & = \mathbb{E}_X \ell(Y, g(X)) \cdot Pr(Y|X)
+\end{align*}
+Minimize $R(g)$ pointwise:
+\begin{align*}
+	\hat{g}(x) = \arg\min_{h\in\{0,1\}} \ell(Y, h) Pr(Y|X=x)
+\end{align*}
+With $\ell()$ being the Hamming loss function this simplifies to:
+\begin{align*}
+	\hat{g}(x) = \arg\max_{h\in\{0,1\}} Pr(Y=h|X=x)
+\end{align*}
+* Reference: ESL pg. 20
+
+\subsection{True risk of Bayes classifier}
+
+
+
+
+\section{Exercise 2}
+
+ 
+% --------------------------------------------------------------
+%     You don't have to mess with anything below this line.
+% --------------------------------------------------------------
+ 
+\end{document}
