@@ -7,6 +7,9 @@
  
 \usepackage[margin=1in]{geometry} 
 \usepackage{amsmath,amsthm,amssymb}
+\usepackage{listings}
+\usepackage{bm}
+
  
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
@@ -60,11 +63,129 @@ With $\ell()$ being the Hamming loss function this simplifies to:
 * Reference: ESL pg. 20
 
 \subsection{True risk of Bayes classifier}
+???
 
+\subsection{Classify with a single $x_j$}
+To fit a model like $h(x)=1\{x_j>0\}$,
+we can try all possible $j$'s and find the one that gives smallest emperical risk.
+Pseudo code for this algorithm as follows:
+\begin{lstlisting}[language=Python]
+	best_R = Inf
+	best_j = None
+	for j in [1, 2, ..., p]:
+		pred = [1 if x[i,j]>0 else 0 for i in 1:N]
+		loss = xor(pred, y)
+		risk = sum(loss)/N
+		if risk < best_R:
+			best_R = risk
+			best_j = j
+	return best_j
+\end{lstlisting}
+This algorithm returns the best $j$.
 
+When making a prediction based on a $x_{new}$, 
+simply check the value of its $j$th component,
+and if $x_{new, j}>0$, predict 1,
+otherwise predict 0.
+
+\subsection{Number of samples needed}
+???
 
 
 \section{Exercise 2}
+
+\subsection{$\hat{\bm{y}}=\bm{H}\bm{y}$}
+In linear regression, we already know that
+\begin{align*}
+	\hat{\bm{y}} = \bm{X} \hat{\beta} = \bm{X}(\bm{X}^T\bm{X})_{-1} \bm{X}^T \bm{y}
+\end{align*}
+Here if we make $\bm{H} = \bm{X}(\bm{X}^T\bm{X})_{-1} \bm{X}^T$, 
+then $\hat{\bm{y}}=\bm{H}\bm{y}$
+
+In the case of kNN model, we can make a matrix $\bm{H}$ such that:
+\[
+	H_{i,j} = 
+	\begin{cases}
+		\frac{1}{k}, & \text{if } x_j \in N_k(x_i) \\
+		0, & \text{otherwise}
+	\end{cases}
+	\text{ for } i, j \in 1,2,..., N
+\]
+Here $N_k(x_i)$ is the k-nearest neighborhood of observation $x_i$ 
+($x_i$ itself included).
+$\bm{H}$ is a $N\times N$ matrix, and each row of it only has $k$ elements with value $\frac{1}{k}$, and all other elements are 0.
+With such contruction, $\hat{\bm{y}}=\bm{H}\bm{y}$.
+
+
+\subsection{kNN leave-one-out}
+To leave-one-out, we need to reconstruct the $\bm{H}$ matrix,
+taking the sample left out into account.
+Assume the $i_0$th observation needs to be left out, 
+make $\bm{H}$ such that
+\[
+	H_{i,j} = 
+	\begin{cases}
+		\frac{1}{k}, & \text{if } x_j \in N_k(x_i) \text{ and } i \neq i_0 \\
+		0, & \text{otherwise}
+	\end{cases}
+	\text{ for } i, j \in 1,2,..., N
+\]
+Here $N_k(x_i)$ should be the set of $x_i$'s $k$ nearest neighbors among all $x$'s but excluding $x_{i_0}$.
+
+Denote the $\bm{H}$ matrix for $\bm{X}$ with the $i$th observation left out as $\bm{H}_i$.
+The square error with the $i$th observation left out would be
+\begin{align*}
+	e_i & = (\hat{\bm{y}}-\bm{y})^T (\hat{\bm{y}}-\bm{y}) \\
+	& = (\bm{H}_i \bm{y}-\bm{y})^T (\bm{H}_i \bm{y}-\bm{y}) \\
+	& = \bm{y}^T (\bm{H}_i - \bm{I})^T (\bm{H}_i - \bm{I}) \bm{y}
+\end{align*}
+
+Leave-one-out cross validated square error would be
+\begin{align*}
+	SE & = \frac{1}{N} \sum_{i=1}^{N} e_i \\
+	& = \frac{1}{N} \sum_{i=1}^{N}\bm{y}^T (\bm{H}_i - \bm{I})^T (\bm{H}_i - \bm{I}) \bm{y}
+\end{align*}
+
+\subsection{SVD in regression}
+Plug $\bm{X} = \bm{U} \bm{D} \bm{V}^T$ into 
+linear regression model $\bm{Y} = \bm{X}\beta + \bm{e} $,
+we get \[ \bm{Y} = \bm{U} \bm{D} \bm{V}^T \beta + \bm{e} \]
+
+Introduce a new vector $b = \bm{D} \bm{V}^T \beta$, 
+the linear model becomes \[ \bm{Y} = \bm{U} b + \bm{e} \]
+
+This takes the form of our normal linear regression model, 
+and $b$ can be estimated by
+\[ \hat{b} = (\bm{U}^T \bm{U})^{-1} \bm{U}^T  \bm{y} \]
+
+Because $\bm{U}$ is an orthogonal matrix, $\bm{U}^T \bm{U} = \bm{I}$,
+$\hat{b}$ simplifies to
+\[ \hat{b} = \bm{U}^T  \bm{y} \]
+
+And $\hat{\beta}$ can be estimated by
+\[\hat{\beta} = (\bm{V}^T)^{-1} \bm{D}^{-1} \hat{b} \]
+
+Again, because $\bm{V}$ is also an orthogonal matrix, $(\bm{V}^T)^{-1} = \bm{V}$, thus
+\[\hat{\beta} = \bm{V} \bm{D}^{-1} \hat{b} \]
+
+Define $\bm{A}=\bm{V} \bm{D}^{-1}$, we get an estimator for $\beta$ and
+\[ \hat{\beta} = \bm{A} \hat{b} \]
+
+To fit the model on a dataset, first performe SVD on the design matrix $\bm{X}$,
+then calculate $\bm{D}^{-1}$ by replacing every diagonal element with its inverse (because $\bm{D}$ is diagonal, all other places shoudl be 0). Then multiply $\bm{U}$ and $\bm{y}$ to get $\hat{b}$. Finally calculate $\hat{\beta}$ via $\hat{\beta} = \bm{A} \hat{b}$.
+
+{\scriptsize Reference: Mandel, John. ``Use of the singular value decomposition in regression analysis." The American Statistician 36.1 (1982): 15-24.}
+
+
+\subsection{Change rank}
+Take the first $r$ elements of $\hat{b}$ to be $\hat{b}_r$,
+take the first $r$ columns of $\bm{A}$ to be $\bm{A}_r$, 
+then $\hat{\beta}_r = \bm{A}_r \hat{b}_r$.
+
+If $\bm{A}$ and $\hat{b}$ already exist,
+this computation should take $O(1)$ time, 
+because it is just a slicing of existing vector/matrix.
+	
 
  
 % --------------------------------------------------------------
