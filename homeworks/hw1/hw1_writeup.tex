@@ -60,10 +60,17 @@ With $\ell()$ being the Hamming loss function this simplifies to:
 \begin{align*}
 	\hat{g}(x) = \arg\max_{h\in\{0,1\}} Pr(Y=h|X=x)
 \end{align*}
-* Reference: ESL pg. 20
+Because $Y$ only takes value of 0 or 1, $\hat{g}(x)$ in practical can be written as
+\[\hat{g}(x)=1\{Pr(Y=1|X=x)>\frac{1}{2}\}\]
+{\scriptsize Reference: ESL pg. 20}
 
 \subsection{True risk of Bayes classifier}
-???
+The true risk is
+\begin{align*}
+	R(g) & = \mathbb{E}[\ell(Y,g(X))] \\
+	& = \mathbb{E}_X \ell(Y, g(X)) \cdot Pr(Y|X) \\
+	& = \ell(Y, g(X)) \cdot Pr(Y|X)
+\end{align*}
 
 \subsection{Classify with a single $x_j$}
 To fit a model like $h(x)=1\{x_j>0\}$,
@@ -89,8 +96,22 @@ and if $x_{new, j}>0$, predict 1,
 otherwise predict 0.
 
 \subsection{Number of samples needed}
-???
-
+\[ \mathbb{P}\{ R(\hat{g}) < R(h) + 0.1 \}  \geq 0.95  \]
+would be the same as
+\[ \mathbb{P}\{ R(\hat{g}) > R(h) + 0.1 \}  \leq 0.05  \]
+meanwhile,
+\begin{align*}
+	\mathbb{P}\{ R(\hat{g}) > R(h) + 0.1 \} & = \mathbb{P}\{ R(\hat{g}) - R(h) > 0.1 \} \\
+	& = \mathbb{P}\{ \bigcup_{i=1}^n [ R_n(h_i) - R(h) >0.1 ] \}   \\
+	& \leq  \sum_{i=1}^n \mathbb{P}\{  R_n(h_i) - R(h) >0.1  \}  \\
+	& \leq 2n \exp(-2n \times 0.1^2)
+\end{align*}
+To make that $\leq 0.05$, we can make
+\begin{align*}
+	2n \exp(-2n \times 0.1^2) & \leq 0.05  \\
+	2n \exp(-0.02n) & \leq 0.05
+\end{align*}
+Solve this to get $n \geq 495$. At least 495 samples needed.
 
 \section{Exercise 2}
 
@@ -154,7 +175,7 @@ we get \[ \bm{Y} = \bm{U} \bm{D} \bm{V}^T \beta + \bm{e} \]
 Introduce a new vector $b = \bm{D} \bm{V}^T \beta$, 
 the linear model becomes \[ \bm{Y} = \bm{U} b + \bm{e} \]
 
-This takes the form of our normal linear regression model, 
+This takes the form of normal OLS linear regression model, 
 and $b$ can be estimated by
 \[ \hat{b} = (\bm{U}^T \bm{U})^{-1} \bm{U}^T  \bm{y} \]
 
@@ -172,7 +193,7 @@ Define $\bm{A}=\bm{V} \bm{D}^{-1}$, we get an estimator for $\beta$ and
 \[ \hat{\beta} = \bm{A} \hat{b} \]
 
 To fit the model on a dataset, first performe SVD on the design matrix $\bm{X}$,
-then calculate $\bm{D}^{-1}$ by replacing every diagonal element with its inverse (because $\bm{D}$ is diagonal, all other places shoudl be 0). Then multiply $\bm{U}$ and $\bm{y}$ to get $\hat{b}$. Finally calculate $\hat{\beta}$ via $\hat{\beta} = \bm{A} \hat{b}$.
+then calculate $\bm{D}^{-1}$ by replacing every diagonal element with its reciprocal (because $\bm{D}$ is diagonal, all other places shoudl be 0). Then multiply $\bm{U}$ and $\bm{y}$ to get $\hat{b}$. Finally calculate $\hat{\beta}$ via $\hat{\beta} = \bm{A} \hat{b}$.
 
 {\scriptsize Reference: Mandel, John. ``Use of the singular value decomposition in regression analysis." The American Statistician 36.1 (1982): 15-24.}
 
@@ -183,8 +204,8 @@ take the first $r$ columns of $\bm{A}$ to be $\bm{A}_r$,
 then $\hat{\beta}_r = \bm{A}_r \hat{b}_r$.
 
 If $\bm{A}$ and $\hat{b}$ already exist,
-this computation should take $O(1)$ time, 
-because it is just a slicing of existing vector/matrix.
+this computation should take $O(Nrp)$ time
+for the matrix mulplication $\hat{\beta}_r = \bm{A}_r \hat{b}_r$. Meanwhile since $r \leq p \leq N$, this time complexity is $O(N^3)$.
 	
 
  
